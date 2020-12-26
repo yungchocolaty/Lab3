@@ -1,0 +1,41 @@
+import math
+
+t = 0
+y_offset = -3
+is_black = []
+lst = []
+
+bitmap_header = [(154, 4), (0, 2), (0, 2), (122, 4), (108, 4), (600, 4), (600, 4), (1, 2),
+                 (32, 2), (3, 4), (32, 4), (2835, 4),
+                 (2835, 4), (0, 4), (0, 4), '\x00\x00\xFF\x00', '\x00\xFF\x00\x00', '\xFF\x00\x00\x00',
+                 '\x00\x00\x00\xFF', (0, 36), (0, 4), (0, 4), (0, 4)]
+
+
+while t <= 2 * math.pi:
+    x = round(math.sin(t), 2)
+    y = round(math.cos(t), 2)
+    lst.append(x)
+    lst.append(y)
+    is_black.append(list(lst))
+    lst.clear()
+    t += 0.01
+
+with open("circle1.bmp", "w+b") as f:
+    f.write(b'BM')
+    for i in range(len(bitmap_header)):
+        if i <= 14:
+            f.write((bitmap_header[i][0]).to_bytes(bitmap_header[i][1], byteorder="little"))
+        if 14 < i <= 18:
+            f.write(b'bitmap_header[i]')
+        if i > 18:
+            f.write((bitmap_header[i][0]).to_bytes(bitmap_header[i][1], byteorder="little"))
+
+    for y_counter in range(600):
+        x_offset = -3
+        for x_counter in range(600):
+            if [x_offset, y_offset] in is_black:
+                f.write(b'\x00\x00\x00\xFF')
+            else:
+                f.write(b'\xFF\xFF\xFF\xFF')
+            x_offset = round(x_offset + 0.01, 2)
+        y_offset = round(y_offset + 0.01, 2)
